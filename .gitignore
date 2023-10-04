@@ -1,0 +1,5 @@
+# Escludi la cartella node_modules
+node_modules/
+
+# Escludi il file .env_production
+.env_production
