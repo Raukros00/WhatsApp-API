@@ -43,6 +43,13 @@ router.post('/sendFile', async (req,res) => {
     )
 
     if(data[0].length > 0){
+
+        await db.connection.promise().query(
+            `
+                INSERT INTO log (idCliente, telefonoDestinatario, messaggio, linkFile) VALUES (${idUtente}, "${numero}", "${messaggio}", "${linkFile}")
+            `
+        )
+
         axios.post(data[0][0].url, {
             messaging_product: "whatsapp",  
             recipient_type: "individual", 
@@ -95,6 +102,13 @@ router.post('/sendText', async (req,res) => {
     )
 
     if(data[0].length > 0){
+
+
+        await db.connection.promise().query(
+            `
+                INSERT INTO log (idCliente, telefonoDestinatario, messaggio) VALUES (${idUtente}, "${numero}", "${messaggio}")
+            `
+        )
 
         axios.post(data[0][0].url, {
             messaging_product: "whatsapp",  

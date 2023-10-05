@@ -1,6 +1,8 @@
 const express = require("express")
 const bodyParser = require("body-parser")
 const mysql = require('mysql2/promise')
+const https = require("https");
+const fs = require("fs");
 const app = express()
 
 const whatsappApi = require('./routes/whatsapp')
@@ -28,8 +30,15 @@ app.use('/inserimentoClienti', inserimentoClienti)
 /** Imposto la rotta per le risorse inesistenti **/
 app.use(_404)
 
-/** Porta di ascolto del server **/
-app.listen(process.env.PORT, () => {
-    console.log(`Sono in ascolto sulla porta ${process.env.PORT}`)
-})
+/** Porta di ascolto del server e certificazioni HTTPS**/
+https
+    .createServer(
+        app,
+        {
+            key: fs.readFileSync("key.pem"),
+            cert: fs.readFileSync("cert.pem"),
+        }
+    ).listen(process.env.PORT, () => {
+        console.log(`Sono in ascolto sulla porta ${process.env.PORT}`)
+    })
 
