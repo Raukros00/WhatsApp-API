@@ -4,7 +4,8 @@ function apiAuth(req,res,next) {
         next()
     }
     else{
-        res.status(404).send("API non accessibile senza Key!")
+		console.log(req.body.apiKey)
+        res.status(404).send("API non accessibile senza Key! " + req.body.apiKey)
     }
 
 }

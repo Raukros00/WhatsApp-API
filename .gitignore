@@ -1,5 +1,12 @@
 # Escludi la cartella node_modules
 node_modules/
 
+# Escludi la cartella daemon
+daemon/
+
 # Escludi il file .env_production
 .env_production
+
+# Escludi i file relativi alle chiavi https
+ipsonline_2023.key
+ipsonline_2023.pem

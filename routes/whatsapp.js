@@ -2,9 +2,12 @@ const express = require('express')
 const axios = require('axios')
 const db = require('../db')
 const router = express.Router()
-
 const apiAuth = require('../middleware/apiAuth')
 const _404 = require('./404')
+const multer = require('multer');
+
+const storage = multer.memoryStorage()
+const upload = multer({ storage })
 
 /** Richiamo le variabili env **/
 require('dotenv').config({
@@ -16,6 +19,7 @@ require('dotenv').config({
 router.use(_404)
 
 /** Applico il middleware a tutte le rotte, così da verificare l'API Key della richiesta **/
+router.use(upload.any())
 router.use(apiAuth)
 
 /**
@@ -32,11 +36,13 @@ router.post('/sendFile', async (req,res) => {
 
     let {numero, linkFile, nomeFile, messaggio, idUtente} = req.body
 
+	 console.log(linkFile)
+
     nomeFile = (nomeFile) ? nomeFile : "file"
 
     const data = await db.connection.promise().query(
         `
-            SELECT whatsappUrl as url, whatsappKey as accessToken
+            SELECT whatsappUrl as url, whatsappKey as accessToken, counterMessages
             FROM utenti
             WHERE idUtente = ${idUtente}
         `
@@ -48,6 +54,15 @@ router.post('/sendFile', async (req,res) => {
             `
                 INSERT INTO log (idCliente, telefonoDestinatario, messaggio, linkFile) VALUES (${idUtente}, "${numero}", "${messaggio}", "${linkFile}")
             `
+        )
+		
+		        
+        await db.connection.promise().query(
+            `
+                UPDATE utenti
+                SET counterMessages = ${data[0][0].counterMessages + 1}
+                WHERE idUtente = ${idUtente}
+            `            
         )
 
         axios.post(data[0][0].url, {
@@ -95,7 +110,7 @@ router.post('/sendText', async (req,res) => {
 
     const data = await db.connection.promise().query(
         `
-            SELECT whatsappUrl as url, whatsappKey as accessToken
+            SELECT whatsappUrl as url, whatsappKey as accessToken, counterMessages
             FROM utenti
             WHERE idUtente = ${idUtente}
         `
@@ -108,6 +123,15 @@ router.post('/sendText', async (req,res) => {
             `
                 INSERT INTO log (idCliente, telefonoDestinatario, messaggio) VALUES (${idUtente}, "${numero}", "${messaggio}")
             `
+        )
+		
+		        
+        await db.connection.promise().query(
+            `
+                UPDATE utenti
+                SET counterMessages = ${data[0][0].counterMessages + 1}
+                WHERE idUtente = ${idUtente}
+            `            
         )
 
         axios.post(data[0][0].url, {

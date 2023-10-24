@@ -1,8 +1,9 @@
 const express = require("express")
 const bodyParser = require("body-parser")
 const mysql = require('mysql2/promise')
-const https = require("https");
-const fs = require("fs");
+const https = require("https")
+const fs = require("fs")
+const cors = require('cors')
 const app = express()
 
 const whatsappApi = require('./routes/whatsapp')
@@ -19,6 +20,14 @@ app.use(bodyParser.urlencoded({
     extended: true
 }))
 
+app.use(cors())
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  next();
+})
+
 /** Richiamo le variabili env **/
 require('dotenv').config({
     path: `.env.production` 
@@ -33,11 +42,11 @@ app.use(_404)
 /** Porta di ascolto del server e certificazioni HTTPS**/
 https
     .createServer(
-        app,
         {
-            key: fs.readFileSync("key.pem"),
-            cert: fs.readFileSync("cert.pem"),
-        }
+            key: fs.readFileSync("C:\\SSL\\ipsonline_2023.key"),
+            cert: fs.readFileSync("C:\\SSL\\ipsonline_2023.crt"),
+        },
+		app
     ).listen(process.env.PORT, () => {
         console.log(`Sono in ascolto sulla porta ${process.env.PORT}`)
     })
